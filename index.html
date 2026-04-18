@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pia's Sommersemester Kalender</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" />
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d8dfeb;
+      --text: #1f2937;
+      --muted: #667085;
+      --accent: #6d28d9;
+      --accent-soft: #ede9fe;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --success: #059669;
+      --success-soft: #d1fae5;
+      --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(180deg, #eff4ff 0%, var(--bg) 45%);
+      color: var(--text);
+    }
+
+    .app-shell {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #6d28d9 0%, #2563eb 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.5;
+    }
+
+    .top-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.2);
+      font-size: 14px;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .tab-btn, .ghost-btn, .primary-btn, .danger-btn, .success-btn, .mini-btn {
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.2s ease, background 0.2s ease;
+      font: inherit;
+    }
+
+    .tab-btn:hover, .ghost-btn:hover, .primary-btn:hover, .danger-btn:hover, .success-btn:hover, .mini-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .tab-btn {
+      padding: 12px 18px;
+      background: #fff;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      font-weight: 600;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .calendar-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .sidebar, .main-card, .subject-card, .notes-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      padding: 18px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .sidebar h2, .main-card h2, .subject-card h2, .notes-card h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .sidebar-section + .sidebar-section {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .input, .textarea, .select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
+
+    .textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .primary-btn, .ghost-btn, .danger-btn, .success-btn {
+      padding: 12px 16px;
+      font-weight: 700;
+    }
+
+    .mini-btn {
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .primary-btn {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .ghost-btn {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .danger-btn {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .success-btn {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .subject-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .subject-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .subject-color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fafcff;
+    }
+
+    .check-item small {
+      display: block;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .main-card {
+      padding: 18px;
+    }
+
+    #calendar {
+      min-height: 850px;
+    }
+
+    .fc .fc-toolbar.fc-header-toolbar {
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .fc .fc-button {
+      background: var(--accent);
+      border-color: var(--accent);
+      border-radius: 12px;
+      text-transform: capitalize;
+      padding: 10px 14px;
+    }
+
+    .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .fc .fc-button-primary:not(:disabled):active {
+      background: #4c1d95;
+      border-color: #4c1d95;
+    }
+
+    .fc .fc-daygrid-event,
+    .fc .fc-timegrid-event {
+      border-radius: 10px;
+      padding: 3px 5px;
+      font-size: 12px;
+      border-width: 0;
+    }
+
+    .fc-event-main {
+      white-space: normal;
+    }
+
+    .muted-box {
+      background: #f8fafc;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .subjects-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+    }
+
+    .subject-card, .notes-card {
+      padding: 18px;
+    }
+
+    .subject-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 860px;
+      overflow: auto;
+    }
+
+    .subject-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      cursor: pointer;
+      background: #fff;
+      transition: border-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .subject-item:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .subject-item.active {
+      border-color: var(--accent);
+      background: #faf5ff;
+    }
+
+    .subject-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .subject-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    .subject-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .detail-box {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .detail-box h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .series-list, .upcoming-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 360px;
+      overflow: auto;
+    }
+
+    .series-item, .upcoming-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      line-height: 1.45;
+    }
+
+    .note-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--success-soft);
+      color: var(--success);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 9999;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(920px, 100%);
+      max-height: 92vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
+      padding: 22px;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .close-btn {
+      background: #eef2ff;
+      border: none;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .info-panel {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .info-panel h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .info-row {
+      display: grid;
+      grid-template-columns: 145px 1fr;
+      gap: 10px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .info-row strong {
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .scope-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .scope-option {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .scope-option small {
+      display: block;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1120px) {
+      .calendar-layout, .subjects-grid, .detail-grid, .modal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app-shell { padding: 12px; }
+      .hero { padding: 18px; }
+      .hero h1 { font-size: 24px; }
+      .info-row { grid-template-columns: 1fr; }
+      .legend { grid-template-columns: 1fr; }
+      .modal { padding: 16px; }
+      #calendar { min-height: 680px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <section class="hero">
+      <h1>Pia's Sommersemester-Kalender</h1>
+      <p>Semester 2: Medizin</p>
+      <div class="top-meta">
+        <div class="chip">Semester: 13.04.2026 – 18.07.2026</div>
+        <div class="chip">Ansichten: Tag / Woche / Monat</div>
+        <div class="chip">Code C</div>
+      </div>
+    </section>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="kalender">Kalender</button>
+      <button class="tab-btn" data-tab="faecher">Fächer</button>
+      <button class="tab-btn" data-tab="notizen">Notizen</button>
+    </div>
+
+    <section id="page-kalender" class="page active">
+      <div class="calendar-layout">
+        <aside class="sidebar">
+          <div class="sidebar-section">
+            <h2>Schnellzugriff</h2>
+            <div class="btn-row">
+              <button id="addSubjectQuickBtn" class="primary-btn">Fach hinzufügen</button>
+              <button id="addSeriesQuickBtn" class="ghost-btn">Terminreihe hinzufügen</button>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <h2>Fächer</h2>
+            <div id="subjectPills" class="subject-pills"></div>
+          </div>
+
+          <div class="sidebar-section">
+            <h2>Ausgewählter Tag</h2>
+            <div id="selectedDateBox" class="muted-box">
+              Klicke im Kalender auf ein Datum, um alle Termine dieses Tages mit Checkboxen zu sehen.
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <h2>Auswahl mit Checkbox</h2>
+            <div id="dayChecklist" class="checklist"></div>
+            <div class="btn-row" style="margin-top: 12px;">
+              <button id="editCheckedBtn" class="ghost-btn">Ausgewählte bearbeiten</button>
+              <button id="deleteCheckedBtn" class="danger-btn">Ausgewählte entfernen</button>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <h2>Legende</h2>
+            <div id="legend" class="legend"></div>
+          </div>
+        </aside>
+
+        <div class="main-card">
+          <h2>Kalender</h2>
+          <div id="calendar"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-faecher" class="page">
+      <div class="subjects-grid">
+        <div class="subject-card">
+          <div class="btn-row" style="margin-bottom: 12px;">
+            <button id="addSubjectBtn" class="primary-btn">Neues Fach</button>
+            <button id="addSeriesBtn" class="ghost-btn">Neue Terminreihe</button>
+          </div>
+          <h2>Fächerliste</h2>
+          <div id="subjectList" class="subject-list"></div>
+        </div>
+
+        <div class="notes-card">
+          <h2>Fachdetails</h2>
+          <div id="subjectDetailsEmpty" class="muted-box">
+            Wähle links ein Fach aus. Du kannst dort Notizen schreiben, Termine sehen, das Fach bearbeiten oder entfernen.
+          </div>
+          <div id="subjectDetails" class="hidden"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-notizen" class="page">
+      <div class="subjects-grid">
+        <div class="subject-card">
+          <h2>Fächer für Notizen</h2>
+          <div id="notesSubjectList" class="subject-list"></div>
+        </div>
+        <div class="notes-card">
+          <h2>Notizen</h2>
+          <div id="notesEmpty" class="muted-box">
+            Wähle links ein Fach aus, um die Notizen zu öffnen.
+          </div>
+          <div id="notesEditorWrap" class="hidden">
+            <div id="noteStatus" class="note-status" style="margin-bottom: 12px;">Bereit zum Speichern</div>
+            <div class="field">
+              <label for="notesEditorTitle">Fach</label>
+              <input id="notesEditorTitle" class="input" disabled />
+            </div>
+            <div class="field">
+              <label for="notesEditor">Notizen</label>
+              <textarea id="notesEditor" class="textarea" placeholder="Hier kannst du alles zu diesem Fach notieren..."></textarea>
+            </div>
+            <div class="btn-row">
+              <button id="saveNotesBtn" class="success-btn">Notizen speichern</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="subjectModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="subjectModalTitle">Fach</h2>
+        <button class="close-btn" data-close="subjectModalBackdrop">×</button>
+      </div>
+      <div class="modal-grid">
+        <div>
+          <div class="field">
+            <label for="subjectNameInput">Name des Fachs</label>
+            <input id="subjectNameInput" class="input" placeholder="z. B. Physiologie I V" />
+          </div>
+          <div class="field">
+            <label for="subjectColorInput">Farbe</label>
+            <input id="subjectColorInput" class="input" type="color" value="#6d28d9" />
+          </div>
+          <div class="field">
+            <label for="subjectNoteInput">Kurze Standardnotiz</label>
+            <textarea id="subjectNoteInput" class="textarea" placeholder="Optionaler Starttext für dieses Fach"></textarea>
+          </div>
+        </div>
+        <div class="info-panel">
+          <h3>Hinweis</h3>
+          <div class="muted-box">
+            Jedes unterschiedliche Fach aus deinem Stundenplan wird hier als eigenes Fach behandelt.
+            Du kannst später beliebig weitere Fächer hinzufügen, bearbeiten oder löschen.
+          </div>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top: 16px;">
+        <button id="saveSubjectBtn" class="primary-btn">Speichern</button>
+        <button id="deleteSubjectBtn" class="danger-btn hidden">Fach löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="seriesModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="seriesModalTitle">Terminreihe</h2>
+        <button class="close-btn" data-close="seriesModalBackdrop">×</button>
+      </div>
+
+      <div class="modal-grid">
+        <div>
+          <div class="field">
+            <label for="seriesSubjectSelect">Fach</label>
+            <select id="seriesSubjectSelect" class="select"></select>
+          </div>
+          <div class="field">
+            <label for="seriesTitleInput">Angezeigter Titel</label>
+            <input id="seriesTitleInput" class="input" placeholder="z. B. Anatomie B V" />
+          </div>
+          <div class="field">
+            <label for="seriesTypeSelect">Terminart</label>
+            <select id="seriesTypeSelect" class="select">
+              <option value="weekly">Wöchentlich wiederkehrend</option>
+              <option value="specific">Nur an bestimmten Daten</option>
+            </select>
+          </div>
+          <div class="field" id="weeklyDayField">
+            <label for="seriesDaySelect">Wochentag</label>
+            <select id="seriesDaySelect" class="select">
+              <option value="1">Montag</option>
+              <option value="2">Dienstag</option>
+              <option value="3">Mittwoch</option>
+              <option value="4">Donnerstag</option>
+              <option value="5">Freitag</option>
+              <option value="6">Samstag</option>
+              <option value="0">Sonntag</option>
+            </select>
+          </div>
+          <div class="field" id="specificDatesField" style="display:none;">
+            <label for="seriesSpecificDatesInput">Bestimmte Daten</label>
+            <textarea id="seriesSpecificDatesInput" class="textarea" placeholder="Format: 2026-04-17, 2026-05-29, 2026-06-12"></textarea>
+          </div>
+          <div class="field">
+            <label for="seriesStartDateInput">Startdatum</label>
+            <input id="seriesStartDateInput" class="input" type="date" />
+          </div>
+          <div class="field">
+            <label for="seriesEndDateInput">Enddatum</label>
+            <input id="seriesEndDateInput" class="input" type="date" />
+          </div>
+          <div class="field">
+            <label for="seriesStartTimeInput">Beginn</label>
+            <input id="seriesStartTimeInput" class="input" type="time" />
+          </div>
+          <div class="field">
+            <label for="seriesEndTimeInput">Ende</label>
+            <input id="seriesEndTimeInput" class="input" type="time" />
+          </div>
+        </div>
+
+        <div>
+          <div class="field">
+            <label for="seriesRoomInput">Raum</label>
+            <input id="seriesRoomInput" class="input" placeholder="z. B. H 4/5 oder Raum unbekannt" />
+          </div>
+          <div class="field">
+            <label for="seriesDetailsInput">Zusatzinformationen</label>
+            <textarea id="seriesDetailsInput" class="textarea" placeholder="Hier kommen alle zusätzlichen Infos rein: Materialien, Raumwechsel, Gruppen, Hinweise, Datumshinweise usw."></textarea>
+          </div>
+          <div class="field">
+            <label for="seriesRoomNotesInput">Raumhinweis</label>
+            <input id="seriesRoomNotesInput" class="input" placeholder="z. B. Raumwechsel am 25.05.2026: H Innere" />
+          </div>
+          <div class="field">
+            <label for="seriesDatesNotesInput">Datumslogik-Hinweis</label>
+            <input id="seriesDatesNotesInput" class="input" placeholder="z. B. letzter Tag: 2026-07-03 / nur bestimmte Daten" />
+          </div>
+          <div class="info-panel">
+            <h3>Bearbeitung</h3>
+            <div class="muted-box">
+              Diese Maske erstellt oder bearbeitet eine ganze Terminreihe. Einzelne Tage oder alle zukünftigen Termine kannst du über einen Termin im Kalender bearbeiten.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top: 16px;">
+        <button id="saveSeriesBtn" class="primary-btn">Speichern</button>
+        <button id="deleteSeriesBtn" class="danger-btn hidden">Terminreihe löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="eventModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="eventModalTitle">Termin</h2>
+        <button class="close-btn" data-close="eventModalBackdrop">×</button>
+      </div>
+
+      <div class="modal-grid">
+        <div class="info-panel">
+          <h3>Aktueller Termin</h3>
+          <div id="eventInfo" class="info-list"></div>
+        </div>
+
+        <div>
+          <div class="field">
+            <label for="editTitleInput">Titel</label>
+            <input id="editTitleInput" class="input" />
+          </div>
+          <div class="field">
+            <label for="editRoomInput">Raum</label>
+            <input id="editRoomInput" class="input" />
+          </div>
+          <div class="field">
+            <label for="editStartTimeInput">Beginn</label>
+            <input id="editStartTimeInput" class="input" type="time" />
+          </div>
+          <div class="field">
+            <label for="editEndTimeInput">Ende</label>
+            <input id="editEndTimeInput" class="input" type="time" />
+          </div>
+          <div class="field">
+            <label for="editDetailsInput">Zusatzinformationen</label>
+            <textarea id="editDetailsInput" class="textarea"></textarea>
+          </div>
+          <div class="field">
+            <label for="editRoomNotesInput">Raumhinweis</label>
+            <input id="editRoomNotesInput" class="input" />
+          </div>
+        </div>
+      </div>
+
+      <div class="info-panel" style="margin-top: 14px;">
+        <h3>Wie soll die Änderung angewendet werden?</h3>
+        <div class="scope-box">
+          <label class="scope-option">
+            <input type="radio" name="editScope" value="single" checked />
+            <span>
+              <strong>Nur dieser Termin</strong>
+              <small>Ändert oder entfernt nur das ausgewählte Datum.</small>
+            </span>
+          </label>
+          <label class="scope-option">
+            <input type="radio" name="editScope" value="future" />
+            <span>
+              <strong>Dieser Termin und alle zukünftigen</strong>
+              <small>Ab diesem Datum wird die Serie in eine neue Reihe aufgeteilt.</small>
+            </span>
+          </label>
+          <label class="scope-option">
+            <input type="radio" name="editScope" value="all" />
+            <span>
+              <strong>Gesamte Serie</strong>
+              <small>Übernimmt die Änderung für alle Termine dieser Reihe.</small>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top: 16px;">
+        <button id="saveEventChangesBtn" class="primary-btn">Änderungen speichern</button>
+        <button id="deleteEventBtn" class="danger-btn">Termin entfernen</button>
+        <button id="openSubjectFromEventBtn" class="ghost-btn">Fach öffnen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dayModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="dayModalTitle">Termine des Tages</h2>
+        <button class="close-btn" data-close="dayModalBackdrop">×</button>
+      </div>
+      <div id="dayModalBody" class="checklist"></div>
+      <div class="btn-row" style="margin-top: 16px;">
+        <button id="dayModalEditBtn" class="ghost-btn">Ausgewählten Termin bearbeiten</button>
+        <button id="dayModalDeleteBtn" class="danger-btn">Ausgewählten Termin entfernen</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      onSnapshot,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeFfu354Dza3G_Qeq3iGims8wYEB0_a7o",
+      authDomain: "pia-s-sommersemester-kalender.firebaseapp.com",
+      projectId: "pia-s-sommersemester-kalender",
+      storageBucket: "pia-s-sommersemester-kalender.firebasestorage.app",
+      messagingSenderId: "973087504511",
+      appId: "1:973087504511:web:6874e47dd27c26054674a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const cloudDocRef = doc(db, "kalender", "pia-sommersemester");
+
+    const STORAGE_KEY = "sommersemester-kalender-v1";
+    const SEMESTER_START = "2026-04-13";
+    const SEMESTER_END = "2026-07-18";
+
+    let isApplyingRemoteState = false;
+    let isInitialCloudLoadDone = false;
+    let calendar;
+    let state = loadLocalState();
+
+    let selectedSubjectId = null;
+    let selectedNotesSubjectId = null;
+    let selectedDateForChecklist = null;
+    let currentSubjectModalId = null;
+    let currentSeriesModalRef = null;
+    let currentEventContext = null;
+
+    function uid(prefix = "id") {
+      return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+
+    function createDefaultData() {
+      const subjects = [
+        { id: uid("sub"), name: "Anatomie B V", color: "#64748b", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Physiologie I V", color: "#84cc16", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Kurs mikroskopische Anatomie", color: "#8b5cf6", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Med. Psychologie V", color: "#ec4899", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Med. Soziologie V", color: "#f97316", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Med. Psychologie Kurs", color: "#0ea5e9", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Seminar mit klinischen Bezügen – Grundlagen der Gesprächsführung", color: "#d97706", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Seminar Physiologie I", color: "#a16207", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "IS Molekulare Histologie", color: "#14b8a6", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "IS’e Modul 4 + 6 – Molekulare Onkologie / Vom Gen zum Protein", color: "#eab308", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "EKM Modul 5 – EKM POL", color: "#22c55e", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Arbeitsmedizinische Untersuchungstermine", color: "#6b7280", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Mental Health, Resilienz und Wohlbefinden im Studium", color: "#38bdf8", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Modul 4 – Ulmer Lehrvisiten", color: "#10b981", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "BE Modul 7 – Klinische Seminare", color: "#ef4444", notes: "", createdAt: Date.now() },
+        { id: uid("sub"), name: "Block Kurs Med. Psychologie / Med. Soziologie", color: "#f43f5e", notes: "", createdAt: Date.now() }
+      ];
+
+      const findSubject = (name) => subjects.find((s) => s.name === name)?.id;
+
+      const series = [
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Anatomie B V"),
+          title: "Anatomie B V",
+          type: "weekly",
+          dayOfWeek: 1,
+          startDate: "2026-04-13",
+          endDate: "2026-07-03",
+          startTime: "08:15",
+          endTime: "09:00",
+          room: "H 4/5",
+          roomNotes: "",
+          datesNotes: "wöchentlich bis letzter Tag 03.07.2026",
+          details: "Vorlesung Anatomie B. Hinweis aus dem Plan: letzter Tag 03.07.2026.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Anatomie B V"),
+          title: "Anatomie B V",
+          type: "weekly",
+          dayOfWeek: 2,
+          startDate: "2026-04-14",
+          endDate: "2026-07-03",
+          startTime: "08:15",
+          endTime: "09:00",
+          room: "H 4/5",
+          roomNotes: "",
+          datesNotes: "wöchentlich bis letzter Tag 03.07.2026",
+          details: "Vorlesung Anatomie B. Hinweis aus dem Plan: letzter Tag 03.07.2026.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Anatomie B V"),
+          title: "Anatomie B V",
+          type: "weekly",
+          dayOfWeek: 3,
+          startDate: "2026-04-15",
+          endDate: "2026-07-03",
+          startTime: "08:15",
+          endTime: "09:00",
+          room: "H 4/5",
+          roomNotes: "",
+          datesNotes: "wöchentlich bis letzter Tag 03.07.2026",
+          details: "Vorlesung Anatomie B. Hinweis aus dem Plan: letzter Tag 03.07.2026.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Anatomie B V"),
+          title: "Anatomie B V",
+          type: "weekly",
+          dayOfWeek: 4,
+          startDate: "2026-04-16",
+          endDate: "2026-07-03",
+          startTime: "08:15",
+          endTime: "09:00",
+          room: "H 4/5",
+          roomNotes: "",
+          datesNotes: "wöchentlich bis letzter Tag 03.07.2026",
+          details: "Vorlesung Anatomie B. Hinweis aus dem Plan: letzter Tag 03.07.2026.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Anatomie B V"),
+          title: "Anatomie B V",
+          type: "specific",
+          dayOfWeek: 5,
+          startDate: "2026-04-17",
+          endDate: "2026-06-12",
+          startTime: "08:15",
+          endTime: "09:00",
+          room: "H 4/5",
+          roomNotes: "",
+          datesNotes: "nur an bestimmten Freitagen",
+          details: "Vorlesung Anatomie B an den im Plan genannten Freitagen.",
+          specificDates: ["2026-04-17", "2026-05-29", "2026-06-12"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Physiologie I V"),
+          title: "Physiologie I V",
+          type: "weekly",
+          dayOfWeek: 1,
+          startDate: "2026-04-13",
+          endDate: "2026-07-18",
+          startTime: "13:15",
+          endTime: "14:00",
+          room: "H TTU",
+          roomNotes: "",
+          datesNotes: "wöchentlich laut Plan",
+          details: "Vorlesung Physiologie I. Auf der Wochenübersicht ist montags 13:15–14:00 angegeben.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Physiologie I V"),
+          title: "Physiologie I V",
+          type: "weekly",
+          dayOfWeek: 2,
+          startDate: "2026-04-14",
+          endDate: "2026-07-18",
+          startTime: "12:15",
+          endTime: "14:00",
+          room: "H TTU",
+          roomNotes: "",
+          datesNotes: "wöchentlich laut Plan",
+          details: "Vorlesung Physiologie I.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Physiologie I V"),
+          title: "Physiologie I V",
+          type: "weekly",
+          dayOfWeek: 4,
+          startDate: "2026-04-16",
+          endDate: "2026-07-18",
+          startTime: "12:15",
+          endTime: "14:00",
+          room: "H TTU",
+          roomNotes: "Raumwechsel am 25.05.2026: H Innere",
+          datesNotes: "wöchentlich laut Plan",
+          details: "Vorlesung Physiologie I. Raumwechsel-Hinweis im Plan vermerkt.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Physiologie I V"),
+          title: "Physiologie I V",
+          type: "weekly",
+          dayOfWeek: 5,
+          startDate: "2026-04-17",
+          endDate: "2026-07-18",
+          startTime: "12:15",
+          endTime: "14:00",
+          room: "H TTU",
+          roomNotes: "Raumwechsel am 25.05.2026: H Innere",
+          datesNotes: "wöchentlich laut Plan",
+          details: "Vorlesung Physiologie I. Freitags im Plan mit Raumwechsel-Hinweis.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Kurs mikroskopische Anatomie"),
+          title: "Kurs mikroskopische Anatomie",
+          type: "weekly",
+          dayOfWeek: 2,
+          startDate: "2026-04-14",
+          endDate: "2026-06-30",
+          startTime: "09:00",
+          endTime: "11:00",
+          room: "N26/218",
+          roomNotes: "",
+          datesNotes: "letzter Tag 30.06.2026",
+          details: "Gruppe II – HM. Letzter Tag laut Plan: 30.06.2026.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Kurs mikroskopische Anatomie"),
+          title: "Kurs mikroskopische Anatomie",
+          type: "weekly",
+          dayOfWeek: 4,
+          startDate: "2026-04-16",
+          endDate: "2026-06-25",
+          startTime: "09:00",
+          endTime: "11:00",
+          room: "N26/218",
+          roomNotes: "",
+          datesNotes: "letzter Tag 25.06.2026",
+          details: "Gruppe II – HM. Zeichenblock, Bleistift, Radiergummi und Anspitzer mitbringen. Letzter Tag laut Plan: 25.06.2026.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Med. Psychologie V"),
+          title: "Med. Psychologie V",
+          type: "weekly",
+          dayOfWeek: 2,
+          startDate: "2026-04-14",
+          endDate: "2026-07-18",
+          startTime: "11:00",
+          endTime: "12:00",
+          room: "H 4/5",
+          roomNotes: "",
+          datesNotes: "wöchentlich laut Plan",
+          details: "Vorlesung Med. Psychologie.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Med. Soziologie V"),
+          title: "Med. Soziologie V",
+          type: "weekly",
+          dayOfWeek: 4,
+          startDate: "2026-04-16",
+          endDate: "2026-07-18",
+          startTime: "11:00",
+          endTime: "12:00",
+          room: "H 4/5",
+          roomNotes: "",
+          datesNotes: "wöchentlich laut Plan",
+          details: "Vorlesung Med. Soziologie.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Med. Psychologie Kurs"),
+          title: "Med. Psychologie Kurs",
+          type: "specific",
+          dayOfWeek: 3,
+          startDate: "2026-04-22",
+          endDate: "2026-06-24",
+          startTime: "09:00",
+          endTime: "11:00",
+          room: "029/1004",
+          roomNotes: "",
+          datesNotes: "nur an bestimmten Daten",
+          details: "Mentorengruppe 18. Projektgruppe P18_4. Daten laut Plan: 22.04., 06.05., 20.05., 10.06., 24.06.",
+          specificDates: ["2026-04-22", "2026-05-06", "2026-05-20", "2026-06-10", "2026-06-24"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Med. Psychologie Kurs"),
+          title: "Med. Psychologie Kurs",
+          type: "specific",
+          dayOfWeek: 2,
+          startDate: "2026-07-14",
+          endDate: "2026-07-14",
+          startTime: "09:00",
+          endTime: "13:00",
+          room: "Raum laut Plan bearbeitbar",
+          roomNotes: "",
+          datesNotes: "einmaliger Termin",
+          details: "Pia: Begutachtungsgruppe B18. Laut Plan am 14.07.2026.",
+          specificDates: ["2026-07-14"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Seminar mit klinischen Bezügen – Grundlagen der Gesprächsführung"),
+          title: "Seminar mit klinischen Bezügen – Grundlagen der Gesprächsführung",
+          type: "specific",
+          dayOfWeek: 1,
+          startDate: "2026-07-06",
+          endDate: "2026-07-10",
+          startTime: "09:00",
+          endTime: "13:00",
+          room: "O29/1001-1004, O29/2001-2006",
+          roomNotes: "",
+          datesNotes: "nur an bestimmten Daten",
+          details: "Im Stundenplan stehen Einzeltage für dieses Seminarformat. Räume laut Plan: O29/1001-1004 und O29/2001-2006.",
+          specificDates: ["2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Seminar Physiologie I"),
+          title: "Seminar Physiologie I",
+          type: "specific",
+          dayOfWeek: 4,
+          startDate: "2026-05-07",
+          endDate: "2026-05-21",
+          startTime: "14:00",
+          endTime: "18:00",
+          room: "wechselnd",
+          roomNotes: "07.05.: O29/3002; 21.05.: O29/1003",
+          datesNotes: "nur an bestimmten Daten",
+          details: "Gruppe G4. Räume laut Plan: 07.05. O29/3002, 21.05. O29/1003.",
+          specificDates: ["2026-05-07", "2026-05-21"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Seminar Physiologie I"),
+          title: "Seminar Physiologie I",
+          type: "specific",
+          dayOfWeek: 3,
+          startDate: "2026-05-27",
+          endDate: "2026-06-10",
+          startTime: "14:00",
+          endTime: "18:00",
+          room: "wechselnd",
+          roomNotes: "27.05.: 023-269/10; 10.06.: O29/1003",
+          datesNotes: "nur an bestimmten Daten",
+          details: "Gruppe G4. Räume laut Plan: 27.05. 023-269/10, 10.06. O29/1003.",
+          specificDates: ["2026-05-27", "2026-06-10"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("IS Molekulare Histologie"),
+          title: "IS Molekulare Histologie",
+          type: "specific",
+          dayOfWeek: 1,
+          startDate: "2026-05-04",
+          endDate: "2026-06-29",
+          startTime: "16:15",
+          endTime: "17:45",
+          room: "O29/1004",
+          roomNotes: "",
+          datesNotes: "nur an bestimmten Daten",
+          details: "Code C (C01–C80), Pia: Gruppe 4. Daten laut Plan: 04.05., 11.05., 18.05., 01.06., 08.06., 15.06., 29.06.",
+          specificDates: ["2026-05-04", "2026-05-11", "2026-05-18", "2026-06-01", "2026-06-08", "2026-06-15", "2026-06-29"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("IS’e Modul 4 + 6 – Molekulare Onkologie / Vom Gen zum Protein"),
+          title: "IS’e Modul 4 + 6 – Molekulare Onkologie / Vom Gen zum Protein",
+          type: "specific",
+          dayOfWeek: 2,
+          startDate: "2026-04-21",
+          endDate: "2026-05-12",
+          startTime: "14:00",
+          endTime: "18:00",
+          room: "wechselnd",
+          roomNotes: "21.04.: N25/1305; 28.04.: N25/1305; 05.05.: N25/2202; 12.05.: N25/2202",
+          datesNotes: "nur an bestimmten Daten",
+          details: "Code C/D/Xc/Xd, Pia: Gruppe 13. Daten und Räume laut Plan übernommen.",
+          specificDates: ["2026-04-21", "2026-04-28", "2026-05-05", "2026-05-12"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("EKM Modul 5 – EKM POL"),
+          title: "EKM Modul 5 – EKM POL",
+          type: "specific",
+          dayOfWeek: 3,
+          startDate: "2026-05-13",
+          endDate: "2026-06-24",
+          startTime: "16:00",
+          endTime: "18:00",
+          room: "O29/2001, O29/2004, O29/2005",
+          roomNotes: "",
+          datesNotes: "nur an bestimmten Daten",
+          details: "Problemorientiertes Lernen. Daten laut Plan: 13.05., 03.06., 24.06.",
+          specificDates: ["2026-05-13", "2026-06-03", "2026-06-24"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Arbeitsmedizinische Untersuchungstermine"),
+          title: "Arbeitsmedizinische Untersuchungstermine",
+          type: "specific",
+          dayOfWeek: 1,
+          startDate: "2026-05-11",
+          endDate: "2026-05-11",
+          startTime: "09:45",
+          endTime: "10:30",
+          room: "Sektion Arbeitsmedizin, Chirurgische Klinik, Ebene 2, Raum 501",
+          roomNotes: "Bitte bereits um 09:30 Uhr dort sein",
+          datesNotes: "einmaliger Termin",
+          details: "Impfpass mitbringen. Datenschutzeinwilligung vorab lesen.",
+          specificDates: ["2026-05-11"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Mental Health, Resilienz und Wohlbefinden im Studium"),
+          title: "Mental Health, Resilienz und Wohlbefinden im Studium",
+          type: "weekly",
+          dayOfWeek: 2,
+          startDate: "2026-04-21",
+          endDate: "2026-06-16",
+          startTime: "06:15",
+          endTime: "08:00",
+          room: "Raum laut Plan bearbeitbar",
+          roomNotes: "",
+          datesNotes: "Beginn 21.04.2026, Ende 16.06.2026",
+          details: "Stress bewältigen durch Achtsamkeit. Der Plan nennt Beginn und Ende. Raum kann bei Bedarf ergänzt werden.",
+          specificDates: [],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Mental Health, Resilienz und Wohlbefinden im Studium"),
+          title: "Mental Health, Resilienz und Wohlbefinden im Studium",
+          type: "specific",
+          dayOfWeek: 0,
+          startDate: "2026-06-07",
+          endDate: "2026-06-07",
+          startTime: "09:00",
+          endTime: "17:00",
+          room: "Raum laut Plan bearbeitbar",
+          roomNotes: "",
+          datesNotes: "einmaliger Blocktag",
+          details: "Stress bewältigen durch Achtsamkeit. Ganztägiger Termin laut Plan am 07.06.",
+          specificDates: ["2026-06-07"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Modul 4 – Ulmer Lehrvisiten"),
+          title: "Modul 4 – Ulmer Lehrvisiten",
+          type: "specific",
+          dayOfWeek: 5,
+          startDate: "2026-04-17",
+          endDate: "2026-05-22",
+          startTime: "14:30",
+          endTime: "16:00",
+          room: "wechselnd",
+          roomNotes: "17.04.: Raum laut Plan bearbeitbar; 24.04.: Infopoint Innere Medizin | Chirurgie; 22.05.: Haupteingang BwK",
+          datesNotes: "nur an bestimmten Daten",
+          details: "6 TN/Gruppe. Kittel und Namensschild mitbringen.",
+          specificDates: ["2026-04-17", "2026-04-24", "2026-05-22"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("BE Modul 7 – Klinische Seminare"),
+          title: "BE Modul 7 – Klinische Seminare",
+          type: "specific",
+          dayOfWeek: 5,
+          startDate: "2026-07-17",
+          endDate: "2026-07-17",
+          startTime: "14:30",
+          endTime: "16:00",
+          room: "RKU – Gemeinschaftsraum",
+          roomNotes: "",
+          datesNotes: "einmaliger Termin",
+          details: "12 TN/Gruppe.",
+          specificDates: ["2026-07-17"],
+          exceptions: {}
+        },
+        {
+          id: uid("ser"),
+          subjectId: findSubject("Block Kurs Med. Psychologie / Med. Soziologie"),
+          title: "Block Kurs Med. Psychologie / Med. Soziologie",
+          type: "specific",
+          dayOfWeek: 5,
+          startDate: "2026-07-17",
+          endDate: "2026-07-17",
+          startTime: "09:00",
+          endTime: "13:00",
+          room: "O29/1001-1004, O29/2001-2006",
+          roomNotes: "",
+          datesNotes: "einmaliger Blocktermin",
+          details: "9 Räume von 9–13 Uhr.",
+          specificDates: ["2026-07-17"],
+          exceptions: {}
+        }
+      ];
+
+      return { subjects, series };
+    }
+
+    function loadLocalState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return createDefaultData();
+        const parsed = JSON.parse(raw);
+        if (!parsed.subjects || !parsed.series) return createDefaultData();
+        return parsed;
+      } catch (error) {
+        console.error("Fehler beim Laden des lokalen Speichers:", error);
+        return createDefaultData();
+      }
+    }
+
+    async function loadCloudState() {
+      try {
+        const snap = await getDoc(cloudDocRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data?.state?.subjects && data?.state?.series) {
+            isApplyingRemoteState = true;
+            state = data.state;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            isApplyingRemoteState = false;
+          }
+        } else {
+          await saveState();
+        }
+        isInitialCloudLoadDone = true;
+      } catch (error) {
+        console.error("Fehler beim Laden aus Firebase:", error);
+      }
+    }
+
+    async function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        if (!isApplyingRemoteState) {
+          await setDoc(cloudDocRef, {
+            state,
+            updatedAt: serverTimestamp()
+          }, { merge: true });
+        }
+      } catch (error) {
+        console.error("Fehler beim Speichern:", error);
+      }
+    }
+
+    function subscribeToCloudUpdates() {
+      onSnapshot(cloudDocRef, (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.data();
+        if (!data?.state?.subjects || !data?.state?.series) return;
+        if (!isInitialCloudLoadDone) return;
+        isApplyingRemoteState = true;
+        state = data.state;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        isApplyingRemoteState = false;
+        resetIfBroken();
+        initializeSelectionDefaults();
+        rerenderUi();
+      }, (error) => {
+        console.error("Fehler beim Live-Sync:", error);
+      });
+    }
+
+    function resetIfBroken() {
+      if (!Array.isArray(state.subjects) || !Array.isArray(state.series)) {
+        state = createDefaultData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+    }
+
+    function subjectById(id) {
+      return state.subjects.find((subject) => subject.id === id) || null;
+    }
+
+    function seriesById(id) {
+      return state.series.find((item) => item.id === id) || null;
+    }
+
+    function dateOnly(value) {
+      if (value instanceof Date) {
+        const year = value.getFullYear();
+        const month = `${value.getMonth() + 1}`.padStart(2, "0");
+        const day = `${value.getDate()}`.padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+      return value?.slice(0, 10);
+    }
+
+    function parseDate(value) {
+      return new Date(`${value}T00:00:00`);
+    }
+
+    function formatDateGerman(value) {
+      return new Date(`${dateOnly(value)}T00:00:00`).toLocaleDateString("de-DE", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function combineDateTime(dateStr, timeStr) {
+      return `${dateStr}T${timeStr}:00`;
+    }
+
+    function addDays(date, amount) {
+      const copy = new Date(date);
+      copy.setDate(copy.getDate() + amount);
+      return copy;
+    }
+
+    function compareDateStr(a, b) {
+      return dateOnly(a).localeCompare(dateOnly(b));
+    }
+
+    function previousDay(dateStr) {
+      return dateOnly(addDays(parseDate(dateStr), -1));
+    }
+
+    function generateOccurrencesForSeries(item) {
+      const occurrences = [];
+      const exceptions = item.exceptions || {};
+
+      const applyException = (dateStr, base) => {
+        const exception = exceptions[dateStr];
+        if (!exception) return base;
+        if (exception.deleted) return null;
+        return {
+          ...base,
+          ...exception,
+          start: combineDateTime(dateStr, exception.startTime || base.startTime),
+          end: combineDateTime(dateStr, exception.endTime || base.endTime),
+          date: dateStr
+        };
+      };
+
+      if (item.type === "weekly") {
+        let current = parseDate(item.startDate);
+        const end = parseDate(item.endDate);
+
+        while (current <= end) {
+          if (current.getDay() === Number(item.dayOfWeek)) {
+            const dateStr = dateOnly(current);
+            const base = buildOccurrenceObject(item, dateStr);
+            const resolved = applyException(dateStr, base);
+            if (resolved) occurrences.push(resolved);
+          }
+          current = addDays(current, 1);
+        }
+      } else {
+        (item.specificDates || []).forEach((dateStr) => {
+          if (compareDateStr(dateStr, item.startDate) >= 0 && compareDateStr(dateStr, item.endDate) <= 0) {
+            const base = buildOccurrenceObject(item, dateStr);
+            const resolved = applyException(dateStr, base);
+            if (resolved) occurrences.push(resolved);
+          }
+        });
+      }
+
+      return occurrences;
+    }
+
+    function buildOccurrenceObject(item, dateStr) {
+      return {
+        id: `${item.id}__${dateStr}`,
+        seriesId: item.id,
+        subjectId: item.subjectId,
+        title: item.title,
+        room: item.room || "",
+        roomNotes: item.roomNotes || "",
+        details: item.details || "",
+        datesNotes: item.datesNotes || "",
+        startTime: item.startTime,
+        endTime: item.endTime,
+        date: dateStr,
+        start: combineDateTime(dateStr, item.startTime),
+        end: combineDateTime(dateStr, item.endTime)
+      };
+    }
+
+    function getAllOccurrences() {
+      return state.series.flatMap(generateOccurrencesForSeries).sort((a, b) => a.start.localeCompare(b.start));
+    }
+
+    function findOccurrence(seriesId, dateStr) {
+      return getAllOccurrences().find((item) => item.seriesId === seriesId && item.date === dateStr) || null;
+    }
+
+    function occurrencesForDate(dateStr) {
+      return getAllOccurrences().filter((item) => item.date === dateStr);
+    }
+
+    function subjectEventCount(subjectId) {
+      return getAllOccurrences().filter((event) => event.subjectId === subjectId).length;
+    }
+
+    function upcomingForSubject(subjectId, limit = 12) {
+      const today = dateOnly(new Date());
+      return getAllOccurrences()
+        .filter((event) => event.subjectId === subjectId && compareDateStr(event.date, today) >= 0)
+        .slice(0, limit);
+    }
+
+    function renderCalendar() {
+      const container = document.getElementById("calendar");
+      container.innerHTML = "";
+
+      const events = getAllOccurrences().map((occ) => {
+        const subject = subjectById(occ.subjectId);
+        return {
+          id: occ.id,
+          title: occ.title,
+          start: occ.start,
+          end: occ.end,
+          backgroundColor: subject?.color || "#6d28d9",
+          borderColor: subject?.color || "#6d28d9",
+          extendedProps: {
+            ...occ,
+            subjectName: subject?.name || occ.title,
+            subjectColor: subject?.color || "#6d28d9"
+          }
+        };
+      });
+
+      calendar = new FullCalendar.Calendar(container, {
+        locale: "de",
+        initialView: "timeGridWeek",
+        firstDay: 1,
+        slotMinTime: "06:00:00",
+        slotMaxTime: "18:30:00",
+        height: "auto",
+        allDaySlot: false,
+        nowIndicator: true,
+        headerToolbar: {
+          left: "prev,next today",
+          center: "title",
+          right: "dayGridMonth,timeGridWeek,timeGridDay"
+        },
+        buttonText: {
+          today: "Heute",
+          month: "Monat",
+          week: "Woche",
+          day: "Tag"
+        },
+        events,
+        eventTimeFormat: {
+          hour: "2-digit", minute: "2-digit", hour12: false
+        },
+        eventDidMount(info) {
+          const p = info.event.extendedProps;
+          info.el.title = `${p.title}\n${p.startTime}–${p.endTime}\nRaum: ${p.room || "nicht eingetragen"}\n${p.details || ""}`;
+        },
+        eventClick(info) {
+          info.jsEvent.preventDefault();
+          openEventModal(info.event.extendedProps.seriesId, info.event.extendedProps.date);
+        },
+        dateClick(info) {
+          openDayView(info.dateStr);
+        }
+      });
+
+      calendar.render();
+    }
+
+    function renderSubjectPills() {
+      const wrap = document.getElementById("subjectPills");
+      wrap.innerHTML = "";
+      state.subjects.forEach((subject) => {
+        const btn = document.createElement("button");
+        btn.className = "subject-pill";
+        btn.innerHTML = `<span class="subject-color-dot" style="background:${subject.color}"></span>${escapeHtml(subject.name)}`;
+        btn.addEventListener("click", () => openSubjectEverywhere(subject.id));
+        wrap.appendChild(btn);
+      });
+    }
+
+    function renderLegend() {
+      const wrap = document.getElementById("legend");
+      wrap.innerHTML = "";
+      state.subjects.forEach((subject) => {
+        const row = document.createElement("div");
+        row.className = "legend-item";
+        row.innerHTML = `<span class="subject-color-dot" style="background:${subject.color}"></span><span>${escapeHtml(subject.name)}</span>`;
+        wrap.appendChild(row);
+      });
+    }
+
+    function renderSubjectsPage() {
+      const subjectList = document.getElementById("subjectList");
+      const notesList = document.getElementById("notesSubjectList");
+      subjectList.innerHTML = "";
+      notesList.innerHTML = "";
+
+      const sortedSubjects = [...state.subjects].sort((a, b) => a.name.localeCompare(b.name, "de"));
+
+      sortedSubjects.forEach((subject) => {
+        const item = createSubjectItem(subject, selectedSubjectId, () => selectSubject(subject.id));
+        subjectList.appendChild(item);
+
+        const notesItem = createSubjectItem(subject, selectedNotesSubjectId, () => selectNotesSubject(subject.id));
+        notesList.appendChild(notesItem);
+      });
+
+      renderSubjectDetails();
+      renderNotesEditor();
+    }
+
+    function createSubjectItem(subject, activeId, onClick) {
+      const count = subjectEventCount(subject.id);
+      const div = document.createElement("div");
+      div.className = `subject-item ${subject.id === activeId ? "active" : ""}`;
+      div.addEventListener("click", onClick);
+      div.innerHTML = `
+        <div class="subject-head">
+          <div class="subject-title">
+            <span class="subject-color-dot" style="background:${subject.color}"></span>
+            <span>${escapeHtml(subject.name)}</span>
+          </div>
+          <span class="badge">${count} Termine</span>
+        </div>
+        <div class="subject-meta">${subject.notes ? escapeHtml(subject.notes.slice(0, 110)) : "Noch keine Notizen gespeichert."}</div>
+      `;
+      return div;
+    }
+
+    function renderSubjectDetails() {
+      const subject = subjectById(selectedSubjectId);
+      const empty = document.getElementById("subjectDetailsEmpty");
+      const container = document.getElementById("subjectDetails");
+
+      if (!subject) {
+        empty.classList.remove("hidden");
+        container.classList.add("hidden");
+        container.innerHTML = "";
+        return;
+      }
+
+      empty.classList.add("hidden");
+      container.classList.remove("hidden");
+
+      const subjectSeries = state.series.filter((item) => item.subjectId === subject.id);
+      const upcoming = upcomingForSubject(subject.id, 14);
+
+      container.innerHTML = `
+        <div class="detail-box">
+          <div class="subject-head">
+            <div class="subject-title">
+              <span class="subject-color-dot" style="background:${subject.color}"></span>
+              <span>${escapeHtml(subject.name)}</span>
+            </div>
+            <div class="btn-row">
+              <button class="mini-btn ghost-btn" id="editSelectedSubjectBtn">Bearbeiten</button>
+              <button class="mini-btn primary-btn" id="openNotesForSubjectBtn">Notizen öffnen</button>
+            </div>
+          </div>
+          <div class="subject-meta">
+            ${subject.notes ? escapeHtml(subject.notes) : "Noch keine Notizen für dieses Fach."}
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-box">
+            <h3>Terminreihen</h3>
+            <div class="series-list">
+              ${subjectSeries.map((item) => `
+                <div class="series-item">
+                  <strong>${escapeHtml(item.title)}</strong><br>
+                  <span>${seriesSummary(item)}</span><br>
+                  <small>Raum: ${escapeHtml(item.room || "nicht eingetragen")}</small><br>
+                  <small>${escapeHtml(item.details || "")}</small>
+                  <div class="btn-row" style="margin-top: 10px;">
+                    <button class="mini-btn ghost-btn" onclick="window.__editSeries('${item.id}')">Terminreihe bearbeiten</button>
+                  </div>
+                </div>
+              `).join("") || '<div class="muted-box">Noch keine Terminreihen vorhanden.</div>'}
+            </div>
+          </div>
+
+          <div class="detail-box">
+            <h3>Kommende Termine</h3>
+            <div class="upcoming-list">
+              ${upcoming.map((item) => `
+                <div class="upcoming-item">
+                  <strong>${escapeHtml(item.title)}</strong><br>
+                  <span>${escapeHtml(formatDateGerman(item.date))}</span><br>
+                  <small>${escapeHtml(item.startTime)}–${escapeHtml(item.endTime)} · Raum: ${escapeHtml(item.room || "nicht eingetragen")}</small>
+                  <div class="btn-row" style="margin-top: 10px;">
+                    <button class="mini-btn ghost-btn" onclick="window.__openOccurrence('${item.seriesId}','${item.date}')">Termin öffnen</button>
+                  </div>
+                </div>
+              `).join("") || '<div class="muted-box">Keine kommenden Termine vorhanden.</div>'}
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("editSelectedSubjectBtn").addEventListener("click", () => openSubjectModal(subject.id));
+      document.getElementById("openNotesForSubjectBtn").addEventListener("click", () => {
+        selectNotesSubject(subject.id);
+        activateTab("notizen");
+      });
+    }
+
+    function renderNotesEditor() {
+      const subject = subjectById(selectedNotesSubjectId);
+      const empty = document.getElementById("notesEmpty");
+      const wrap = document.getElementById("notesEditorWrap");
+
+      if (!subject) {
+        empty.classList.remove("hidden");
+        wrap.classList.add("hidden");
+        return;
+      }
+
+      empty.classList.add("hidden");
+      wrap.classList.remove("hidden");
+      document.getElementById("notesEditorTitle").value = subject.name;
+      document.getElementById("notesEditor").value = subject.notes || "";
+    }
+
+    function renderSelectedDateChecklist() {
+      const box = document.getElementById("selectedDateBox");
+      const list = document.getElementById("dayChecklist");
+      list.innerHTML = "";
+
+      if (!selectedDateForChecklist) {
+        box.textContent = "Klicke im Kalender auf ein Datum, um alle Termine dieses Tages mit Checkboxen zu sehen.";
+        return;
+      }
+
+      const items = occurrencesForDate(selectedDateForChecklist);
+      box.innerHTML = `<strong>${escapeHtml(formatDateGerman(selectedDateForChecklist))}</strong><br>${items.length} Termin(e) gefunden.`;
+
+      if (!items.length) {
+        list.innerHTML = '<div class="muted-box">Keine Termine an diesem Tag.</div>';
+        return;
+      }
+
+      items.forEach((item) => {
+        const subject = subjectById(item.subjectId);
+        const label = document.createElement("label");
+        label.className = "check-item";
+        label.innerHTML = `
+          <input type="checkbox" class="day-check" data-series-id="${item.seriesId}" data-date="${item.date}" />
+          <div>
+            <strong>${escapeHtml(item.title)}</strong>
+            <small>${escapeHtml(item.startTime)}–${escapeHtml(item.endTime)} · Raum: ${escapeHtml(item.room || "nicht eingetragen")}</small>
+            <small>${escapeHtml(item.details || "")}</small>
+            <small>Fach: ${escapeHtml(subject?.name || item.title)}</small>
+          </div>
+        `;
+        list.appendChild(label);
+      });
+    }
+
+    function openDayView(dateStr) {
+      selectedDateForChecklist = dateStr;
+      renderSelectedDateChecklist();
+      const items = occurrencesForDate(dateStr);
+      document.getElementById("dayModalTitle").textContent = `Termine am ${formatDateGerman(dateStr)}`;
+      const body = document.getElementById("dayModalBody");
+      body.innerHTML = "";
+
+      if (!items.length) {
+        body.innerHTML = '<div class="muted-box">Keine Termine an diesem Tag.</div>';
+      } else {
+        items.forEach((item, index) => {
+          const subject = subjectById(item.subjectId);
+          const label = document.createElement("label");
+          label.className = "check-item";
+          label.innerHTML = `
+            <input type="radio" name="dayModalSelect" value="${item.seriesId}__${item.date}" ${index === 0 ? "checked" : ""} />
+            <div>
+              <strong>${escapeHtml(item.title)}</strong>
+              <small>${escapeHtml(item.startTime)}–${escapeHtml(item.endTime)}</small>
+              <small>Raum: ${escapeHtml(item.room || "nicht eingetragen")}</small>
+              <small>${escapeHtml(item.details || "")}</small>
+              <small>Fach: ${escapeHtml(subject?.name || item.title)}</small>
+            </div>
+          `;
+          body.appendChild(label);
+        });
+      }
+
+      openModal("dayModalBackdrop");
+    }
+
+    function getSelectedChecklistOccurrences() {
+      return Array.from(document.querySelectorAll(".day-check:checked")).map((box) => ({
+        seriesId: box.dataset.seriesId,
+        date: box.dataset.date
+      }));
+    }
+
+    function openSubjectEverywhere(subjectId) {
+      selectSubject(subjectId);
+      selectNotesSubject(subjectId);
+      activateTab("faecher");
+    }
+
+    function selectSubject(subjectId) {
+      selectedSubjectId = subjectId;
+      renderSubjectsPage();
+    }
+
+    function selectNotesSubject(subjectId) {
+      selectedNotesSubjectId = subjectId;
+      renderSubjectsPage();
+    }
+
+    function activateTab(tabName) {
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === tabName);
+      });
+      document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
+      document.getElementById(`page-${tabName}`).classList.add("active");
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add("open");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("open");
+    }
+
+    function wireCloseButtons() {
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.addEventListener("click", () => closeModal(btn.dataset.close));
+      });
+      document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
+        backdrop.addEventListener("click", (event) => {
+          if (event.target === backdrop) backdrop.classList.remove("open");
+        });
+      });
+    }
+
+    function openSubjectModal(subjectId = null) {
+      currentSubjectModalId = subjectId;
+      const subject = subjectId ? subjectById(subjectId) : null;
+      document.getElementById("subjectModalTitle").textContent = subject ? "Fach bearbeiten" : "Fach hinzufügen";
+      document.getElementById("subjectNameInput").value = subject?.name || "";
+      document.getElementById("subjectColorInput").value = subject?.color || "#6d28d9";
+      document.getElementById("subjectNoteInput").value = subject?.notes || "";
+      document.getElementById("deleteSubjectBtn").classList.toggle("hidden", !subject);
+      openModal("subjectModalBackdrop");
+    }
+
+    async function saveSubjectFromModal() {
+      const name = document.getElementById("subjectNameInput").value.trim();
+      const color = document.getElementById("subjectColorInput").value;
+      const notes = document.getElementById("subjectNoteInput").value.trim();
+      if (!name) return alert("Bitte einen Fachnamen eingeben.");
+
+      if (currentSubjectModalId) {
+        const subject = subjectById(currentSubjectModalId);
+        if (!subject) return;
+        subject.name = name;
+        subject.color = color;
+        subject.notes = notes;
+      } else {
+        const newSubject = { id: uid("sub"), name, color, notes, createdAt: Date.now() };
+        state.subjects.push(newSubject);
+        selectedSubjectId = newSubject.id;
+        selectedNotesSubjectId = newSubject.id;
+      }
+
+      await persistAndRefresh();
+      closeModal("subjectModalBackdrop");
+    }
+
+    async function deleteSubjectFromModal() {
+      if (!currentSubjectModalId) return;
+      const subject = subjectById(currentSubjectModalId);
+      if (!subject) return;
+      const ok = confirm(`Fach „${subject.name}“ wirklich löschen? Alle zugehörigen Terminreihen werden ebenfalls gelöscht.`);
+      if (!ok) return;
+      state.series = state.series.filter((item) => item.subjectId !== currentSubjectModalId);
+      state.subjects = state.subjects.filter((item) => item.id !== currentSubjectModalId);
+      if (selectedSubjectId === currentSubjectModalId) selectedSubjectId = null;
+      if (selectedNotesSubjectId === currentSubjectModalId) selectedNotesSubjectId = null;
+      await persistAndRefresh();
+      closeModal("subjectModalBackdrop");
+    }
+
+    function populateSubjectSelect() {
+      const select = document.getElementById("seriesSubjectSelect");
+      select.innerHTML = state.subjects.map((subject) => `<option value="${subject.id}">${escapeHtml(subject.name)}</option>`).join("");
+    }
+
+    function openSeriesModal(seriesId = null, presetSubjectId = null) {
+      populateSubjectSelect();
+      currentSeriesModalRef = seriesId;
+      const item = seriesId ? seriesById(seriesId) : null;
+      document.getElementById("seriesModalTitle").textContent = item ? "Terminreihe bearbeiten" : "Terminreihe hinzufügen";
+      document.getElementById("deleteSeriesBtn").classList.toggle("hidden", !item);
+
+      document.getElementById("seriesSubjectSelect").value = item?.subjectId || presetSubjectId || state.subjects[0]?.id || "";
+      document.getElementById("seriesTitleInput").value = item?.title || "";
+      document.getElementById("seriesTypeSelect").value = item?.type || "weekly";
+      document.getElementById("seriesDaySelect").value = String(item?.dayOfWeek ?? 1);
+      document.getElementById("seriesSpecificDatesInput").value = (item?.specificDates || []).join(", ");
+      document.getElementById("seriesStartDateInput").value = item?.startDate || SEMESTER_START;
+      document.getElementById("seriesEndDateInput").value = item?.endDate || SEMESTER_END;
+      document.getElementById("seriesStartTimeInput").value = item?.startTime || "09:00";
+      document.getElementById("seriesEndTimeInput").value = item?.endTime || "10:00";
+      document.getElementById("seriesRoomInput").value = item?.room || "";
+      document.getElementById("seriesDetailsInput").value = item?.details || "";
+      document.getElementById("seriesRoomNotesInput").value = item?.roomNotes || "";
+      document.getElementById("seriesDatesNotesInput").value = item?.datesNotes || "";
+
+      syncSeriesTypeFields();
+      openModal("seriesModalBackdrop");
+    }
+
+    function syncSeriesTypeFields() {
+      const type = document.getElementById("seriesTypeSelect").value;
+      document.getElementById("weeklyDayField").style.display = type === "weekly" ? "block" : "none";
+      document.getElementById("specificDatesField").style.display = type === "specific" ? "block" : "none";
+    }
+
+    async function saveSeriesFromModal() {
+      const subjectId = document.getElementById("seriesSubjectSelect").value;
+      const title = document.getElementById("seriesTitleInput").value.trim();
+      const type = document.getElementById("seriesTypeSelect").value;
+      const dayOfWeek = Number(document.getElementById("seriesDaySelect").value);
+      const startDate = document.getElementById("seriesStartDateInput").value;
+      const endDate = document.getElementById("seriesEndDateInput").value;
+      const startTime = document.getElementById("seriesStartTimeInput").value;
+      const endTime = document.getElementById("seriesEndTimeInput").value;
+      const room = document.getElementById("seriesRoomInput").value.trim();
+      const details = document.getElementById("seriesDetailsInput").value.trim();
+      const roomNotes = document.getElementById("seriesRoomNotesInput").value.trim();
+      const datesNotes = document.getElementById("seriesDatesNotesInput").value.trim();
+      const specificDates = document.getElementById("seriesSpecificDatesInput").value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      if (!subjectId) return alert("Bitte ein Fach auswählen.");
+      if (!title) return alert("Bitte einen Titel eingeben.");
+      if (!startDate || !endDate) return alert("Bitte Start- und Enddatum angeben.");
+      if (!startTime || !endTime) return alert("Bitte Beginn und Ende angeben.");
+      if (type === "specific" && !specificDates.length) return alert("Bitte mindestens ein Datum für „Nur an bestimmten Daten“ eingeben.");
+
+      const payload = {
+        subjectId,
+        title,
+        type,
+        dayOfWeek,
+        startDate,
+        endDate,
+        startTime,
+        endTime,
+        room,
+        details,
+        roomNotes,
+        datesNotes,
+        specificDates
+      };
+
+      if (currentSeriesModalRef) {
+        const item = seriesById(currentSeriesModalRef);
+        if (!item) return;
+        Object.assign(item, payload);
+      } else {
+        state.series.push({ id: uid("ser"), exceptions: {}, ...payload });
+      }
+
+      await persistAndRefresh();
+      closeModal("seriesModalBackdrop");
+    }
+
+    async function deleteSeriesFromModal() {
+      if (!currentSeriesModalRef) return;
+      const item = seriesById(currentSeriesModalRef);
+      if (!item) return;
+      const ok = confirm(`Terminreihe „${item.title}“ wirklich löschen?`);
+      if (!ok) return;
+      state.series = state.series.filter((series) => series.id !== currentSeriesModalRef);
+      await persistAndRefresh();
+      closeModal("seriesModalBackdrop");
+    }
+
+    function openEventModal(seriesId, dateStr) {
+      const occ = findOccurrence(seriesId, dateStr);
+      if (!occ) return;
+      currentEventContext = { seriesId, date: dateStr };
+      const subject = subjectById(occ.subjectId);
+      document.getElementById("eventModalTitle").textContent = occ.title;
+      document.getElementById("editTitleInput").value = occ.title || "";
+      document.getElementById("editRoomInput").value = occ.room || "";
+      document.getElementById("editStartTimeInput").value = occ.startTime || "";
+      document.getElementById("editEndTimeInput").value = occ.endTime || "";
+      document.getElementById("editDetailsInput").value = occ.details || "";
+      document.getElementById("editRoomNotesInput").value = occ.roomNotes || "";
+      document.getElementById("eventInfo").innerHTML = `
+        <div class="info-row"><strong>Fach</strong><span>${escapeHtml(subject?.name || occ.title)}</span></div>
+        <div class="info-row"><strong>Datum</strong><span>${escapeHtml(formatDateGerman(occ.date))}</span></div>
+        <div class="info-row"><strong>Zeit</strong><span>${escapeHtml(occ.startTime)}–${escapeHtml(occ.endTime)}</span></div>
+        <div class="info-row"><strong>Raum</strong><span>${escapeHtml(occ.room || "nicht eingetragen")}</span></div>
+        <div class="info-row"><strong>Raumhinweis</strong><span>${escapeHtml(occ.roomNotes || "–")}</span></div>
+        <div class="info-row"><strong>Datumslogik</strong><span>${escapeHtml(occ.datesNotes || "–")}</span></div>
+        <div class="info-row"><strong>Zusatzinfo</strong><span>${escapeHtml(occ.details || "–")}</span></div>
+      `;
+      document.querySelectorAll('input[name="editScope"]').forEach((input, index) => input.checked = index === 0);
+      openModal("eventModalBackdrop");
+    }
+
+    function getEditScope() {
+      return document.querySelector('input[name="editScope"]:checked')?.value || "single";
+    }
+
+    async function saveEventChanges() {
+      if (!currentEventContext) return;
+      const scope = getEditScope();
+      const series = seriesById(currentEventContext.seriesId);
+      if (!series) return;
+      const patch = {
+        title: document.getElementById("editTitleInput").value.trim(),
+        room: document.getElementById("editRoomInput").value.trim(),
+        startTime: document.getElementById("editStartTimeInput").value,
+        endTime: document.getElementById("editEndTimeInput").value,
+        details: document.getElementById("editDetailsInput").value.trim(),
+        roomNotes: document.getElementById("editRoomNotesInput").value.trim()
+      };
+
+      if (!patch.title || !patch.startTime || !patch.endTime) {
+        return alert("Titel, Beginn und Ende dürfen nicht leer sein.");
+      }
+
+      if (scope === "single") {
+        series.exceptions = series.exceptions || {};
+        series.exceptions[currentEventContext.date] = {
+          ...(series.exceptions[currentEventContext.date] || {}),
+          ...patch
+        };
+      } else if (scope === "all") {
+        Object.assign(series, patch);
+      } else if (scope === "future") {
+        splitSeriesAtDate(series, currentEventContext.date, patch);
+      }
+
+      await persistAndRefresh();
+      closeModal("eventModalBackdrop");
+      if (selectedDateForChecklist === currentEventContext.date) renderSelectedDateChecklist();
+    }
+
+    async function deleteEventByScope() {
+      if (!currentEventContext) return;
+      const scope = getEditScope();
+      const series = seriesById(currentEventContext.seriesId);
+      if (!series) return;
+      const dateStr = currentEventContext.date;
+
+      if (scope === "single") {
+        series.exceptions = series.exceptions || {};
+        series.exceptions[dateStr] = { deleted: true };
+      } else if (scope === "all") {
+        state.series = state.series.filter((item) => item.id !== series.id);
+      } else if (scope === "future") {
+        trimSeriesBeforeDate(series, dateStr);
+      }
+
+      await persistAndRefresh();
+      closeModal("eventModalBackdrop");
+      if (selectedDateForChecklist === dateStr) renderSelectedDateChecklist();
+    }
+
+    function trimSeriesBeforeDate(series, dateStr) {
+      if (series.type === "weekly") {
+        series.endDate = previousDay(dateStr);
+      } else {
+        series.specificDates = (series.specificDates || []).filter((date) => compareDateStr(date, dateStr) < 0);
+        if (!series.specificDates.length) {
+          state.series = state.series.filter((item) => item.id !== series.id);
+        } else {
+          series.endDate = series.specificDates[series.specificDates.length - 1];
+        }
+      }
+    }
+
+    function splitSeriesAtDate(series, dateStr, patch) {
+      const newSeries = typeof structuredClone === "function"
+        ? structuredClone(series)
+        : JSON.parse(JSON.stringify(series));
+      newSeries.id = uid("ser");
+      newSeries.exceptions = {};
+      Object.assign(newSeries, patch);
+
+      if (series.type === "weekly") {
+        series.endDate = previousDay(dateStr);
+        newSeries.startDate = dateStr;
+      } else {
+        const oldDates = (series.specificDates || []).filter((date) => compareDateStr(date, dateStr) < 0);
+        const futureDates = (series.specificDates || []).filter((date) => compareDateStr(date, dateStr) >= 0);
+        series.specificDates = oldDates;
+        if (!oldDates.length) {
+          state.series = state.series.filter((item) => item.id !== series.id);
+        } else {
+          series.startDate = oldDates[0];
+          series.endDate = oldDates[oldDates.length - 1];
+        }
+        newSeries.specificDates = futureDates;
+        newSeries.startDate = futureDates[0];
+        newSeries.endDate = futureDates[futureDates.length - 1];
+      }
+
+      state.series.push(newSeries);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function seriesSummary(item) {
+      if (item.type === "weekly") {
+        return `${weekdayName(item.dayOfWeek)} · ${item.startTime}–${item.endTime} · ${item.startDate} bis ${item.endDate}`;
+      }
+      return `Bestimmte Daten · ${item.startTime}–${item.endTime} · ${item.specificDates.join(", ")}`;
+    }
+
+    function weekdayName(index) {
+      return ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"][Number(index)] || "Unbekannt";
+    }
+
+    async function persistAndRefresh() {
+      await saveState();
+      resetIfBroken();
+      rerenderUi();
+    }
+
+    function rerenderUi() {
+      renderCalendar();
+      renderSubjectPills();
+      renderLegend();
+      renderSubjectsPage();
+      renderSelectedDateChecklist();
+    }
+
+    async function saveCurrentNotes() {
+      const subject = subjectById(selectedNotesSubjectId);
+      if (!subject) return;
+      subject.notes = document.getElementById("notesEditor").value;
+      await saveState();
+      document.getElementById("noteStatus").textContent = "Notizen gespeichert und synchronisiert";
+      renderSubjectsPage();
+      setTimeout(() => {
+        const el = document.getElementById("noteStatus");
+        if (el) el.textContent = "Bereit zum Speichern";
+      }, 1600);
+    }
+
+    function wireGlobalButtons() {
+      document.querySelectorAll(".tab-btn").forEach((btn) => btn.addEventListener("click", () => activateTab(btn.dataset.tab)));
+
+      document.getElementById("addSubjectQuickBtn").addEventListener("click", () => openSubjectModal());
+      document.getElementById("addSeriesQuickBtn").addEventListener("click", () => openSeriesModal(null, selectedSubjectId || state.subjects[0]?.id));
+      document.getElementById("addSubjectBtn").addEventListener("click", () => openSubjectModal());
+      document.getElementById("addSeriesBtn").addEventListener("click", () => openSeriesModal(null, selectedSubjectId || state.subjects[0]?.id));
+
+      document.getElementById("saveSubjectBtn").addEventListener("click", saveSubjectFromModal);
+      document.getElementById("deleteSubjectBtn").addEventListener("click", deleteSubjectFromModal);
+
+      document.getElementById("seriesTypeSelect").addEventListener("change", syncSeriesTypeFields);
+      document.getElementById("saveSeriesBtn").addEventListener("click", saveSeriesFromModal);
+      document.getElementById("deleteSeriesBtn").addEventListener("click", deleteSeriesFromModal);
+
+      document.getElementById("saveEventChangesBtn").addEventListener("click", saveEventChanges);
+      document.getElementById("deleteEventBtn").addEventListener("click", deleteEventByScope);
+      document.getElementById("openSubjectFromEventBtn").addEventListener("click", () => {
+        if (!currentEventContext) return;
+        const occ = findOccurrence(currentEventContext.seriesId, currentEventContext.date);
+        if (!occ) return;
+        openSubjectEverywhere(occ.subjectId);
+        closeModal("eventModalBackdrop");
+      });
+
+      document.getElementById("saveNotesBtn").addEventListener("click", saveCurrentNotes);
+
+      document.getElementById("editCheckedBtn").addEventListener("click", () => {
+        const selected = getSelectedChecklistOccurrences();
+        if (selected.length !== 1) return alert("Bitte genau einen Termin auswählen.");
+        openEventModal(selected[0].seriesId, selected[0].date);
+      });
+
+      document.getElementById("deleteCheckedBtn").addEventListener("click", async () => {
+        const selected = getSelectedChecklistOccurrences();
+        if (!selected.length) return alert("Bitte mindestens einen Termin auswählen.");
+        const ok = confirm(`${selected.length} ausgewählte Termine wirklich entfernen? Dies entfernt jeweils nur den einzelnen Termin.`);
+        if (!ok) return;
+        selected.forEach((item) => {
+          const series = seriesById(item.seriesId);
+          if (!series) return;
+          series.exceptions = series.exceptions || {};
+          series.exceptions[item.date] = { deleted: true };
+        });
+        await persistAndRefresh();
+      });
+
+      document.getElementById("dayModalEditBtn").addEventListener("click", () => {
+        const checked = document.querySelector('input[name="dayModalSelect"]:checked');
+        if (!checked) return alert("Bitte einen Termin auswählen.");
+        const [seriesId, date] = checked.value.split("__");
+        closeModal("dayModalBackdrop");
+        openEventModal(seriesId, date);
+      });
+
+      document.getElementById("dayModalDeleteBtn").addEventListener("click", async () => {
+        const checked = document.querySelector('input[name="dayModalSelect"]:checked');
+        if (!checked) return alert("Bitte einen Termin auswählen.");
+        const [seriesId, date] = checked.value.split("__");
+        const series = seriesById(seriesId);
+        if (!series) return;
+        const ok = confirm("Diesen einzelnen Termin wirklich entfernen?");
+        if (!ok) return;
+        series.exceptions = series.exceptions || {};
+        series.exceptions[date] = { deleted: true };
+        await persistAndRefresh();
+        closeModal("dayModalBackdrop");
+      });
+    }
+
+    window.__editSeries = function(seriesId) {
+      openSeriesModal(seriesId);
+    };
+
+    window.__openOccurrence = function(seriesId, dateStr) {
+      openEventModal(seriesId, dateStr);
+    };
+
+    function initializeSelectionDefaults() {
+      if (!selectedSubjectId && state.subjects[0]) selectedSubjectId = state.subjects[0].id;
+      if (!selectedNotesSubjectId && state.subjects[0]) selectedNotesSubjectId = state.subjects[0].id;
+    }
+
+    async function init() {
+      resetIfBroken();
+      initializeSelectionDefaults();
+      wireCloseButtons();
+      wireGlobalButtons();
+      await loadCloudState();
+      subscribeToCloudUpdates();
+      rerenderUi();
+    }
+
+    init();
+  </script>
+</body>
+</html>
